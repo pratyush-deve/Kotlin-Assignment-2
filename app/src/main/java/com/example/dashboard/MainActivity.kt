@@ -12,6 +12,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -56,6 +58,7 @@ import com.example.dashboard.ui.theme.DashboardTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -63,11 +66,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.materialIcon
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -83,12 +90,15 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.modifier.modifierLocalOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.lang.Integer.expand
 
 
@@ -113,7 +123,12 @@ fun DashboardContent() {
     var context = LocalContext.current
     var scroll = rememberScrollState(0)
     var termsAccepted by remember { mutableStateOf(false) }
+    var gengerselected by remember { mutableStateOf(false) }
+    var nameselected by remember { mutableStateOf(false) }
+    var emailselected by remember { mutableStateOf(false) }
     var toastcounter by remember { mutableStateOf(0) }
+    var showDialog by remember { mutableStateOf(false) }
+    var submissionComplete by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -130,6 +145,23 @@ fun DashboardContent() {
                     containerColor = Color.DarkGray
                 )
             )
+        },
+        bottomBar = {
+            NavigationBar(
+                containerColor = Color.DarkGray,
+                modifier=Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Home,
+                    contentDescription = "Home",
+                    modifier = Modifier
+                        .clickable(
+                            onClick = {/*Todo*/}
+                        )
+                )
+            }
         },
         modifier = Modifier
             .fillMaxSize()
@@ -161,10 +193,20 @@ fun DashboardContent() {
             Spacer(modifier = Modifier.height(4.dp))
             TextFieldContents(
                 modifier = Modifier
-                    .padding(top=16.dp)
+                    .padding(top=16.dp),
+                onread1 = { accepted ->
+                    nameselected = accepted
+                },
+                onread2 = { accepted ->
+                    emailselected = accepted
+                }
             )
             Spacer(modifier = Modifier.height(4.dp))
-            Gender()
+            Gender(
+                onread = { accepted ->
+                    gengerselected = accepted
+                }
+            )
             Spacer(modifier = Modifier.height(4.dp))
             Notifications()
             Spacer(modifier = Modifier.height(4.dp))
@@ -176,14 +218,23 @@ fun DashboardContent() {
             Spacer(modifier = Modifier.height(4.dp))
             Button(
                 onClick = {
-                    if(termsAccepted){
-                        color = Color.Green
-                        if(toastcounter!=1){
-                            Toast.makeText(context, "Details Submitted", Toast.LENGTH_SHORT).show()
-                            toastcounter=1
-                        }
+                    if(termsAccepted and gengerselected and nameselected and emailselected and termsAccepted and !submissionComplete){
+                        showDialog=true
+                        color = color
                     }
-                    else{
+                    else if(!nameselected){
+                        color = Color.Black
+                        Toast.makeText(context, "You cannot leave Name empty", Toast.LENGTH_SHORT).show()
+                    }
+                    else if(!emailselected){
+                        color = Color.Black
+                        Toast.makeText(context, "You cannot leave Email empty", Toast.LENGTH_SHORT).show()
+                    }
+                    else if(!gengerselected){
+                        color = Color.Black
+                        Toast.makeText(context, "Please select a gender", Toast.LENGTH_SHORT).show()
+                    }
+                    else if(!termsAccepted){
                         color = Color.Black
                         Toast.makeText(context, "Please accept the terms and conditions", Toast.LENGTH_SHORT).show()
                     }
@@ -204,6 +255,35 @@ fun DashboardContent() {
                     fontWeight = FontWeight.Bold
                 )
             }
+        }
+        if (showDialog) {
+            AlertDialog(
+                onDismissRequest = { showDialog = false },
+                title = { Text("Confirm Submission?", color = Color.White) },
+                text = {
+                    Text(
+                        "Your details will be submitted and saved for future use.",
+                        color = Color.White
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showDialog = false
+                        color=Color.Green
+                        submissionComplete = true
+                    }) {
+                        Text("OK", color = Color.Cyan)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDialog = false }) {
+                        Text("Cancel", color = Color.Cyan)
+                    }
+                },
+                containerColor = Color(0xFF2C2C2C),
+                titleContentColor = Color.White,
+                textContentColor = Color.White
+            )
         }
     }
 }
@@ -228,14 +308,18 @@ fun Header() {
     }
 }
 @Composable
-fun TextFieldContents(modifier: Modifier = Modifier) {
+fun TextFieldContents(
+    onread1:(Boolean)->Unit,
+    onread2:(Boolean)->Unit,
+    modifier: Modifier = Modifier
+) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
     Card(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .clickable(
@@ -259,7 +343,10 @@ fun TextFieldContents(modifier: Modifier = Modifier) {
         ) {
             OutlinedTextField(
                 value = name,
-                onValueChange = { name = it },
+                onValueChange = {
+                    name = it
+                    onread1(true)
+                },
                 label = { Text("Name", color = Color.Cyan) },
                 placeholder = { Text("Enter your name") },
                 shape = RoundedCornerShape(12.dp),
@@ -276,7 +363,10 @@ fun TextFieldContents(modifier: Modifier = Modifier) {
 
             OutlinedTextField(
                 value = email,
-                onValueChange = { email = it },
+                onValueChange = {
+                    email = it
+                    onread2(true)
+                },
                 label = { Text("Email", color = Color.Cyan) },
                 placeholder = { Text("Enter your email") },
                 shape = RoundedCornerShape(12.dp),
@@ -292,12 +382,26 @@ fun TextFieldContents(modifier: Modifier = Modifier) {
             )
         }
     }
+    if(name.isEmpty()){
+        onread1(false)
+    }
+    else if(email.isEmpty()){
+        onread2(false)
+    }
+    else{
+        onread1(true)
+        onread2(true)
+    }
 }
 @Composable
-fun Gender() {
+fun Gender(onread: (Boolean)->Unit) {
     var selectedGender by remember { mutableStateOf<String?>(null) }
+    var otherGender by remember { mutableStateOf("") }
     var expand by remember { mutableStateOf(false) }
     val rotation by animateFloatAsState(if (expand) 180f else 0f, label = "")
+    val scope = rememberCoroutineScope()
+    var otherTextInput by remember { mutableStateOf(false) }
+    var checkColor by remember { mutableStateOf(Color.LightGray) }
 
     Card(
         modifier = Modifier
@@ -333,7 +437,11 @@ fun Gender() {
                 )
             }
 
-            AnimatedVisibility(visible = expand) {
+            AnimatedVisibility(
+                visible = expand,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+                ) {
                 Column {
                     Spacer(modifier = Modifier.height(12.dp))
                     Row(
@@ -342,7 +450,14 @@ fun Gender() {
                     ) {
                         RadioButton(
                             selected = selectedGender == "Male",
-                            onClick = { selectedGender = "Male" },
+                            onClick = {
+                                selectedGender = "Male"
+                                onread(true)
+                                scope.launch { // 👈 launch coroutine for delay
+                                    delay(1000)
+                                    expand = false
+                                }
+                            },
                             colors = RadioButtonDefaults.colors(
                                 selectedColor = Color.Cyan,
                                 unselectedColor = Color.Gray
@@ -357,11 +472,18 @@ fun Gender() {
 
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(vertical = 1.dp)
+                        modifier = Modifier
+                            .padding(vertical = 1.dp)
                     ) {
                         RadioButton(
                             selected = selectedGender == "Female",
-                            onClick = { selectedGender = "Female" },
+                            onClick = {
+                                selectedGender = "Female"
+                                onread(true)
+                                scope.launch { // 👈 launch coroutine for delay
+                                    delay(1000)
+                                    expand = false
+                                }                            },
                             colors = RadioButtonDefaults.colors(
                                 selectedColor = Color.Cyan,
                                 unselectedColor = Color.Gray
@@ -376,25 +498,58 @@ fun Gender() {
 
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(vertical = 1.dp)
-                    ) {
-                        RadioButton(
-                            selected = selectedGender == "Others",
-                            onClick = { selectedGender = "Others" },
-                            colors = RadioButtonDefaults.colors(
-                                selectedColor = Color.Cyan,
-                                unselectedColor = Color.Gray
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 1.dp)
+                    ){
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .padding(vertical = 1.dp)
+                        ) {
+                            RadioButton(
+                                selected = selectedGender == "Others",
+                                onClick = {
+                                    selectedGender = "Others"
+                                    onread(true)
+                                    expand = true
+                                },
+                                colors = RadioButtonDefaults.colors(
+                                    selectedColor = Color.Cyan,
+                                    unselectedColor = Color.Gray
+                                )
                             )
-                        )
-                        Text(
-                            text = "Others",
-                            color = Color.White,
-                            modifier = Modifier.padding(start = 4.dp)
+                            Text(
+                                text = "Others",
+                                color = Color.White,
+                                modifier = Modifier.padding(start = 4.dp)
+                            )
+                        }
+                        Icon(
+                            imageVector = Icons.Filled.Check,
+                            contentDescription = "Check",
+                            tint = Color.Cyan,
+                            modifier = Modifier
+                                .clickable(onClick = {
+                                    if(otherTextInput){
+                                        checkColor = Color.Green
+                                        scope.launch {
+                                            delay(1000)
+                                            expand=false
+                                        }
+                                    }
+                                })
+                                .padding(end=8.dp)
+                                .background(
+                                    color = checkColor,
+                                    shape = CircleShape
+                                )
+                                .padding(4.dp)
                         )
                     }
 
                     if (selectedGender == "Others") {
-                        var otherGender by remember { mutableStateOf("") }
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
@@ -402,7 +557,10 @@ fun Gender() {
                         ) {
                             OutlinedTextField(
                                 value = otherGender,
-                                onValueChange = { otherGender = it },
+                                onValueChange = {
+                                    otherGender = it
+                                    otherTextInput=true
+                                },
                                 label = { Text("Specify Gender", color = Color.Cyan) },
                                 shape = RoundedCornerShape(12.dp),
                                 modifier = Modifier.fillMaxWidth(),
@@ -416,6 +574,9 @@ fun Gender() {
                                 )
                             )
                         }
+                    }
+                    if(selectedGender!="Male" && selectedGender!="Female" && selectedGender!="Others"){
+                        onread(false)
                     }
                 }
             }
