@@ -1,6 +1,8 @@
 package com.example.dashboard
 
 import android.R.attr.enabled
+import android.R.attr.fontWeight
+import android.R.attr.rotation
 import android.icu.text.CaseMap
 import android.os.Bundle
 import android.provider.ContactsContract
@@ -14,12 +16,14 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -46,7 +50,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -58,6 +61,7 @@ import com.example.dashboard.ui.theme.DashboardTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -79,22 +83,32 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.modifier.modifierLocalOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
@@ -119,7 +133,6 @@ class MainActivity : ComponentActivity() {
 fun DashboardContent() {
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
-    var color by remember { mutableStateOf(Color.Black) }
     var context = LocalContext.current
     var scroll = rememberScrollState(0)
     var termsAccepted by remember { mutableStateOf(false) }
@@ -129,8 +142,19 @@ fun DashboardContent() {
     var toastcounter by remember { mutableStateOf(0) }
     var showDialog by remember { mutableStateOf(false) }
     var submissionComplete by remember { mutableStateOf(false) }
+    //themes color
+    var isDarkTheme by remember { mutableStateOf(true) }
+    val backgroundColor = if (isDarkTheme) Color(0xFF232121) else Color(0xFFFFFFFF)
+    val cardColor = if (isDarkTheme) Color(0xFFF1F0F0) else Color(0xFF000000)
+    val textColor = if (isDarkTheme) Color(color = 0xFF020202) else Color(color = 0xFFFFFFFF)
+    val toggleColor = if (isDarkTheme) Color(color = 0xFF071D6B) else Color(color = 0xFF21DAF3)
+    val oppositeColor = if (isDarkTheme) Color.White else Color.Black
+    var colorsubmit by remember { mutableStateOf(oppositeColor) }
 
     Scaffold(
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding(),
         topBar = {
             TopAppBar(
                 modifier = Modifier
@@ -142,29 +166,71 @@ fun DashboardContent() {
                         color = Color.White
                     ) },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.DarkGray
+                    containerColor = Color.Black
                 )
             )
         },
         bottomBar = {
             NavigationBar(
-                containerColor = Color.DarkGray,
+                containerColor = Color.Black,
                 modifier=Modifier
                     .fillMaxWidth()
                     .navigationBarsPadding()
             ) {
-                // Navigation items
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                ){
+                    Text(
+                        text = "Social Media Links",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 15.sp,
+                        color = Color.White
+                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ){
+                        Icon(
+                            painter = painterResource(id = R.drawable.insta),
+                            contentDescription = "Insta",
+                            modifier = Modifier
+                                .size(25.dp)
+                                .clip(CircleShape)
+                                .clickable(onClick = {/*todo*/})
+                        )
+                        Icon(
+                            painter = painterResource(id = R.drawable.facebook),
+                            contentDescription = "facebook",
+                            modifier = Modifier
+                                .size(25.dp)
+                                .clip(CircleShape)
+                                .clickable(onClick = {/*todo*/})
+                        )
+                        Icon(
+                            painter = painterResource(id = R.drawable.youtube),
+                            contentDescription = "youtube",
+                            modifier = Modifier
+                                .size(25.dp)
+                                .clip(CircleShape)
+                                .clickable(onClick = {/*todo*/})
+                        )
+                    }
+                }
             }
         },
-        modifier = Modifier
-            .fillMaxSize()
-            .statusBarsPadding()
+
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
                 .padding(top = 8.dp)
+                .background(backgroundColor)
                 .clickable(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() }
@@ -176,10 +242,23 @@ fun DashboardContent() {
         ) {
             Card(
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .padding(bottom = 20.dp)
+                    .border(
+                        width = 3.dp,
+                        brush = Brush.linearGradient(
+                            colors = listOf(
+                                Color.Cyan,
+                                Color.Blue,
+                                Color.Magenta
+                            )
+                        ),
+                        shape = RoundedCornerShape(20.dp)
+                    ),
                 colors = CardDefaults.cardColors(
-                    containerColor = Color.DarkGray
-                )
+                    containerColor = cardColor
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
                 Header()
             }
@@ -192,43 +271,68 @@ fun DashboardContent() {
                 },
                 onread2 = { accepted ->
                     emailselected = accepted
-                }
+                },
+                toggleColor = toggleColor,
+                textColor = textColor,
+                cardColor = cardColor
             )
             Spacer(modifier = Modifier.height(4.dp))
             Gender(
+                cardColor = cardColor,
+                textColor = textColor,
+                toggleColor=toggleColor,
                 onread = { accepted ->
                     gengerselected = accepted
                 }
             )
             Spacer(modifier = Modifier.height(4.dp))
-            Notifications()
+            Notifications(
+                cardColor = cardColor,
+                textColor = textColor,
+                toggleColor = toggleColor
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Settings(
+                cardColor = cardColor,
+                toggleColor = toggleColor,
+                textColor = textColor,
+                isDarkTheme = isDarkTheme,
+                onThemeChange = { isDarkTheme = it }
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Contents(
+                cardColor = cardColor,
+                textColor = textColor
+            )
             Spacer(modifier = Modifier.height(4.dp))
             TermsAndConditions(
                 onread = { accepted ->
                     termsAccepted = accepted
-                }
+                },
+                textColor = textColor,
+                cardColor = cardColor
+
             )
             Spacer(modifier = Modifier.height(4.dp))
             Button(
                 onClick = {
                     if(termsAccepted and gengerselected and nameselected and emailselected and termsAccepted and !submissionComplete){
                         showDialog=true
-                        color = color
                     }
                     else if(!nameselected){
-                        color = Color.Black
+                        colorsubmit = oppositeColor
                         Toast.makeText(context, "You cannot leave Name empty", Toast.LENGTH_SHORT).show()
                     }
                     else if(!emailselected){
-                        color = Color.Black
+                        colorsubmit = oppositeColor
                         Toast.makeText(context, "You cannot leave Email empty", Toast.LENGTH_SHORT).show()
                     }
                     else if(!gengerselected){
-                        color = Color.Black
+                        colorsubmit = oppositeColor
                         Toast.makeText(context, "Please select a gender", Toast.LENGTH_SHORT).show()
                     }
                     else if(!termsAccepted){
-                        color = Color.Black
+                        colorsubmit = oppositeColor
                         Toast.makeText(context, "Please accept the terms and conditions", Toast.LENGTH_SHORT).show()
                     }
                 },
@@ -238,8 +342,8 @@ fun DashboardContent() {
                     .height(55.dp),
                 shape = RoundedCornerShape(50),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = color,
-                    contentColor = Color.White
+                    containerColor = colorsubmit,
+                    contentColor = textColor
                 )
             ) {
                 Text(
@@ -262,7 +366,7 @@ fun DashboardContent() {
                 confirmButton = {
                     TextButton(onClick = {
                         showDialog = false
-                        color=Color.Green
+                        colorsubmit=Color.Green
                         submissionComplete = true
                     }) {
                         Text("OK", color = Color.Cyan)
@@ -304,7 +408,10 @@ fun Header() {
 fun TextFieldContents(
     onread1:(Boolean)->Unit,
     onread2:(Boolean)->Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    toggleColor: Color,
+    textColor: Color,
+    cardColor: Color
 ) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -324,7 +431,7 @@ fun TextFieldContents(
               },
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF1E1E1E)
+            containerColor = cardColor
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
@@ -340,17 +447,17 @@ fun TextFieldContents(
                     name = it
                     onread1(true)
                 },
-                label = { Text("Name", color = Color.Cyan) },
+                label = { Text("Name", color = toggleColor) },
                 placeholder = { Text("Enter your name") },
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier.fillMaxWidth(),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color.Cyan,
-                    unfocusedBorderColor = Color.Cyan,
-                    cursorColor = Color.Cyan,
-                    focusedLabelColor = Color.Cyan,
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White
+                    focusedBorderColor = toggleColor,
+                    unfocusedBorderColor = toggleColor,
+                        cursorColor = toggleColor,
+                    focusedLabelColor = toggleColor,
+                    focusedTextColor = textColor,
+                    unfocusedTextColor = textColor
                 )
             )
 
@@ -360,17 +467,17 @@ fun TextFieldContents(
                     email = it
                     onread2(true)
                 },
-                label = { Text("Email", color = Color.Cyan) },
+                label = { Text("Email", color = toggleColor) },
                 placeholder = { Text("Enter your email") },
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier.fillMaxWidth(),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color.Cyan,
-                    unfocusedBorderColor = Color.Cyan,
-                    cursorColor = Color.Cyan,
-                    focusedLabelColor = Color.Cyan,
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White
+                    focusedBorderColor = toggleColor,
+                    unfocusedBorderColor = toggleColor,
+                    cursorColor = toggleColor,
+                    focusedLabelColor = toggleColor,
+                    focusedTextColor = textColor,
+                    unfocusedTextColor = textColor
                 )
             )
         }
@@ -387,7 +494,12 @@ fun TextFieldContents(
     }
 }
 @Composable
-fun Gender(onread: (Boolean)->Unit) {
+fun Gender(
+    onread: (Boolean)->Unit,
+    cardColor: Color,
+    textColor: Color,
+    toggleColor: Color
+) {
     var selectedGender by remember { mutableStateOf<String?>(null) }
     var otherGender by remember { mutableStateOf("") }
     var expand by remember { mutableStateOf(false) }
@@ -403,7 +515,7 @@ fun Gender(onread: (Boolean)->Unit) {
             .clickable(onClick = { expand = true}),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF1E1E1E)
+            containerColor = cardColor
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
@@ -420,12 +532,12 @@ fun Gender(onread: (Boolean)->Unit) {
                     text = "Gender",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = textColor
                 )
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowDown,
                     contentDescription = if (expand) "Collapse" else "Expand",
-                    tint = Color.Cyan,
+                    tint = toggleColor,
                     modifier = Modifier
                         .rotate(rotation)
                         .clickable { expand = !expand }
@@ -454,13 +566,13 @@ fun Gender(onread: (Boolean)->Unit) {
                                 }
                             },
                             colors = RadioButtonDefaults.colors(
-                                selectedColor = Color.Cyan,
+                                selectedColor = toggleColor,
                                 unselectedColor = Color.Gray
                             )
                         )
                         Text(
                             text = "Male",
-                            color = Color.White,
+                            color = textColor,
                             modifier = Modifier.padding(start = 4.dp)
                         )
                     }
@@ -480,13 +592,13 @@ fun Gender(onread: (Boolean)->Unit) {
                                     expand = false
                                 }                            },
                             colors = RadioButtonDefaults.colors(
-                                selectedColor = Color.Cyan,
+                                selectedColor = toggleColor,
                                 unselectedColor = Color.Gray
                             )
                         )
                         Text(
                             text = "Female",
-                            color = Color.White,
+                            color = textColor,
                             modifier = Modifier.padding(start = 4.dp)
                         )
                     }
@@ -511,13 +623,13 @@ fun Gender(onread: (Boolean)->Unit) {
                                     expand = true
                                 },
                                 colors = RadioButtonDefaults.colors(
-                                    selectedColor = Color.Cyan,
+                                    selectedColor = toggleColor,
                                     unselectedColor = Color.Gray
                                 )
                             )
                             Text(
                                 text = "Others",
-                                color = Color.White,
+                                color = textColor,
                                 modifier = Modifier.padding(start = 4.dp)
                             )
                         }
@@ -555,16 +667,16 @@ fun Gender(onread: (Boolean)->Unit) {
                                     otherGender = it
                                     otherTextInput=true
                                 },
-                                label = { Text("Specify Gender", color = Color.Cyan) },
+                                label = { Text("Specify Gender", color = toggleColor) },
                                 shape = RoundedCornerShape(12.dp),
                                 modifier = Modifier.fillMaxWidth(),
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = Color.Cyan,
-                                    unfocusedBorderColor = Color.Cyan,
-                                    cursorColor = Color.Cyan,
-                                    focusedLabelColor = Color.Cyan,
-                                    focusedTextColor = Color.White,
-                                    unfocusedTextColor = Color.White
+                                    focusedBorderColor = toggleColor,
+                                    unfocusedBorderColor = toggleColor,
+                                    cursorColor = toggleColor,
+                                    focusedLabelColor = toggleColor,
+                                    focusedTextColor = toggleColor,
+                                    unfocusedTextColor = toggleColor
                                 )
                             )
                         }
@@ -578,7 +690,11 @@ fun Gender(onread: (Boolean)->Unit) {
     }
 }
 @Composable
-fun Notifications(){
+fun Notifications(
+    cardColor: Color,
+    textColor: Color,
+    toggleColor: Color
+){
     var notifications by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
@@ -588,7 +704,7 @@ fun Notifications(){
             .padding(all = 20.dp),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF1E1E1E)
+            containerColor = cardColor
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ){
@@ -606,7 +722,7 @@ fun Notifications(){
                     text = "Notifications",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = textColor
                 )
                 Switch(
                     checked = notifications,
@@ -619,8 +735,8 @@ fun Notifications(){
                         }
                     },
                     colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color.Cyan,
-                        checkedTrackColor = Color.Cyan.copy(alpha = 0.4f),
+                        checkedThumbColor = toggleColor,
+                        checkedTrackColor = toggleColor.copy(alpha = 0.4f),
                         uncheckedThumbColor = Color.Gray,
                         uncheckedTrackColor = Color.DarkGray
                     )
@@ -630,7 +746,11 @@ fun Notifications(){
     }
 }
 @Composable
-fun TermsAndConditions(onread: (Boolean)->Unit) {
+fun TermsAndConditions(
+    onread: (Boolean)->Unit,
+    textColor: Color,
+    cardColor: Color
+) {
     var termsAndConditions by remember { mutableStateOf(false) }
     var read by remember { mutableStateOf(false) }
 
@@ -638,15 +758,17 @@ fun TermsAndConditions(onread: (Boolean)->Unit) {
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center
     ) {
+        val oppositeColor = if (textColor.luminance() > 0.5f) Color.Black else Color.White
         TextButton(
             onClick = { termsAndConditions = true },
             colors = ButtonDefaults.textButtonColors(
-                contentColor = Color.Cyan
+                contentColor = oppositeColor
+
             )
         ) {
             Text(
                 text = "Terms and Conditions",
-                color = Color.Black
+                color = oppositeColor
             )
         }
     }
@@ -677,16 +799,310 @@ fun TermsAndConditions(onread: (Boolean)->Unit) {
                         onread(true)
                     }
                 ) {
-                    Text("OK", color = Color.Cyan)
+                    Text("OK", color = textColor)
                 }
             },
-            containerColor = Color(0xFF2C2C2C),
-            titleContentColor = Color.White,
-            textContentColor = Color.White
+            containerColor = cardColor,
+            titleContentColor = textColor,
+            textContentColor = textColor
         )
     }
 }
+@Composable
+fun Settings(
+    cardColor: Color,
+    textColor: Color,
+    toggleColor: Color,
+    isDarkTheme: Boolean,
+    onThemeChange: (Boolean) -> Unit
+){
+    var expand by remember { mutableStateOf(false) }
+    val rotation by animateFloatAsState(if (expand) 180f else 0f, label = "")
+    var volume by remember { mutableStateOf(0.5f) }
+    var showDisplay by remember { mutableStateOf(false) }
 
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(all = 20.dp)
+            .clickable(onClick = {expand=true}),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = cardColor
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ){
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "Settings",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = textColor
+                )
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowDown,
+                    contentDescription = if (expand) "Collapse" else "Expand",
+                    tint = toggleColor,
+                    modifier = Modifier
+                        .rotate(rotation)
+                        .clickable { expand = !expand }
+                )
+            }
+            AnimatedVisibility(
+                expand,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(top = 16.dp)
+                        .fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Volume",
+                            color = textColor,
+                            fontWeight = FontWeight.Medium
+                        )
+                        Text(
+                            text = " ${(volume * 100).toInt()}%",
+                            color = textColor,
+                            fontSize = 14.sp
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Slider(
+                        value = volume,
+                        onValueChange = { volume = it },
+                        valueRange = 0f..1f,
+                        colors = SliderDefaults.colors(
+                            thumbColor = toggleColor,
+                            activeTrackColor = toggleColor,
+                            inactiveTrackColor = Color.Gray
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    OutlinedButton(
+                        onClick = {
+                            showDisplay = true
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Transparent,
+                            contentColor = textColor
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "Themes",
+                            color = textColor
+                        )
+                    }
+                }
+            }
+        }
+    }
+    val oppositeColor = if (textColor.luminance() > 0.5f) Color.Black else Color.White
+    if(showDisplay){
+        AlertDialog(
+            onDismissRequest = {showDisplay=false},
+            title = { Text(
+                "Display Settings",
+                color = textColor
+            ) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDisplay = false
+                    }
+                ) {
+                    Text("OK", color = toggleColor)
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showDisplay = false
+                    }
+                ) {
+                    Text("Cancel", color = toggleColor)
+                }
+            },
+            text = {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = if (isDarkTheme) "Dark Theme" else "Light Theme",
+                        color = textColor
+                    )
+                    Switch(
+                        checked = isDarkTheme,
+                        onCheckedChange = {
+                            onThemeChange(it)
+                        },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = toggleColor,
+                            checkedTrackColor = toggleColor.copy(alpha = 0.4f),
+                            uncheckedThumbColor = Color.Gray,
+                            uncheckedTrackColor = Color.DarkGray
+                        )
+                    )
+                }
+            },
+            containerColor = oppositeColor,
+        )
+    }
+}
+@Composable
+fun Contents(
+    cardColor: Color,
+    textColor: Color
+){
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(all = 20.dp),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = cardColor
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = "Recent Activities",
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                color = textColor,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(
+                        border = BorderStroke(1.dp, textColor),
+                        shape = RoundedCornerShape(4.dp),
+                    )
+                    .padding(16.dp),
+            )
+        }
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(max = 200.dp)
+        ) {
+            item() {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = cardColor
+                    ),
+                    elevation = CardDefaults.cardElevation(4.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Text(
+                            text = "Recent Login",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = textColor
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "Account was logged in on 8/09/2025.",
+                            fontSize = 15.sp,
+                            color = textColor.copy(alpha = 0.8f)
+                        )
+                    }
+                }
+            }
+            item() {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = cardColor
+                    ),
+                    elevation = CardDefaults.cardElevation(4.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Text(
+                            text = "Logout",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = textColor
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "Account was logged off from all devices on 9/09/2025.",
+                            fontSize = 15.sp,
+                            color = textColor.copy(alpha = 0.8f)
+                        )
+                    }
+                }
+            }
+            item() {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = cardColor
+                    ),
+                    elevation = CardDefaults.cardElevation(4.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Text(
+                            text = "Recent Login",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = textColor
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "Account was logged in on 1/10/2025.",
+                            fontSize = 15.sp,
+                            color = textColor.copy(alpha = 0.8f)
+                        )
+                    }
+                }
+            }
+        }
+
+    }
+}
 
 
 
