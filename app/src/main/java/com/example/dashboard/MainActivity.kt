@@ -153,14 +153,7 @@ fun DashboardContent() {
                     .fillMaxWidth()
                     .navigationBarsPadding()
             ) {
-                Icon(
-                    imageVector = Icons.Default.Home,
-                    contentDescription = "Home",
-                    modifier = Modifier
-                        .clickable(
-                            onClick = {/*Todo*/}
-                        )
-                )
+                // Navigation items
             }
         },
         modifier = Modifier
@@ -407,7 +400,7 @@ fun Gender(onread: (Boolean)->Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(all = 20.dp)
-            .clickable(onClick = { expand = !expand }),
+            .clickable(onClick = { expand = true}),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color(0xFF1E1E1E)
@@ -433,7 +426,9 @@ fun Gender(onread: (Boolean)->Unit) {
                     imageVector = Icons.Default.KeyboardArrowDown,
                     contentDescription = if (expand) "Collapse" else "Expand",
                     tint = Color.Cyan,
-                    modifier = Modifier.rotate(rotation)
+                    modifier = Modifier
+                        .rotate(rotation)
+                        .clickable { expand = !expand }
                 )
             }
 
