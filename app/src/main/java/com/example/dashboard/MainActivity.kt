@@ -548,7 +548,6 @@ fun Gender(onread: (Boolean)->Unit) {
                                 .padding(4.dp)
                         )
                     }
-
                     if (selectedGender == "Others") {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
