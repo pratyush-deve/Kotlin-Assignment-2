@@ -147,8 +147,8 @@ fun DashboardContent() {
     val backgroundColor = if (isDarkTheme) Color(0xFF232121) else Color(0xFFFFFFFF)
     val cardColor = if (isDarkTheme) Color(0xFFF1F0F0) else Color(0xFF000000)
     val textColor = if (isDarkTheme) Color(color = 0xFF020202) else Color(color = 0xFFFFFFFF)
-    val toggleColor = if (isDarkTheme) Color(color = 0xFF071D6B) else Color(color = 0xFF21DAF3)
-    val oppositeColor = if (isDarkTheme) Color.White else Color.Black
+    val toggleColor = if (isDarkTheme) Color(color = 0xFF071D6B) else Color(color = 0xFF21DAF3)//For all Cyan colors
+    val oppositeColor = if (isDarkTheme) Color.White else Color.Black//used in places where opp of textcolor needed
     var colorsubmit by remember { mutableStateOf(oppositeColor) }
 
     Scaffold(
@@ -201,7 +201,9 @@ fun DashboardContent() {
                             modifier = Modifier
                                 .size(25.dp)
                                 .clip(CircleShape)
-                                .clickable(onClick = {/*todo*/})
+                                .clickable(onClick = {
+                                    Toast.makeText(context, "Opening Instagram",Toast.LENGTH_SHORT).show()
+                                })
                         )
                         Icon(
                             painter = painterResource(id = R.drawable.facebook),
@@ -209,7 +211,10 @@ fun DashboardContent() {
                             modifier = Modifier
                                 .size(25.dp)
                                 .clip(CircleShape)
-                                .clickable(onClick = {/*todo*/})
+                                .clickable(onClick = {
+                                    Toast.makeText(context, "Opening Facebook",Toast.LENGTH_SHORT).show()
+
+                                })
                         )
                         Icon(
                             painter = painterResource(id = R.drawable.youtube),
@@ -217,7 +222,10 @@ fun DashboardContent() {
                             modifier = Modifier
                                 .size(25.dp)
                                 .clip(CircleShape)
-                                .clickable(onClick = {/*todo*/})
+                                .clickable(onClick = {
+                                    Toast.makeText(context, "Opening Youtube",Toast.LENGTH_SHORT).show()
+
+                                })
                         )
                     }
                 }
@@ -1016,7 +1024,11 @@ fun Contents(
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 8.dp),
+                        .padding(vertical = 8.dp)
+                        .border(
+                            width = 1.dp,
+                            color = textColor,
+                        ),
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = cardColor
@@ -1045,7 +1057,11 @@ fun Contents(
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 8.dp),
+                        .padding(vertical = 8.dp)
+                        .border(
+                            width = 1.dp,
+                            color = textColor,
+                        ),
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = cardColor
@@ -1074,7 +1090,11 @@ fun Contents(
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 8.dp),
+                        .padding(vertical = 8.dp)
+                        .border(
+                            width = 1.dp,
+                            color = textColor,
+                        ),
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = cardColor
@@ -1093,6 +1113,72 @@ fun Contents(
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "Account was logged in on 1/10/2025.",
+                            fontSize = 15.sp,
+                            color = textColor.copy(alpha = 0.8f)
+                        )
+                    }
+                }
+            }
+            item() {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                        .border(
+                            width = 1.dp,
+                            color = textColor,
+                        ),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = cardColor
+                    ),
+                    elevation = CardDefaults.cardElevation(4.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Text(
+                            text = "Updates",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = textColor
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "Name was edited from abc to xyz",
+                            fontSize = 15.sp,
+                            color = textColor.copy(alpha = 0.8f)
+                        )
+                    }
+                }
+            }
+            item() {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                        .border(
+                            width = 1.dp,
+                            color = textColor,
+                        ),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = cardColor
+                    ),
+                    elevation = CardDefaults.cardElevation(4.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Text(
+                            text = "Updates",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = textColor
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "Email was changed from abc@gmail.com to xyz@gmail.com",
                             fontSize = 15.sp,
                             color = textColor.copy(alpha = 0.8f)
                         )
