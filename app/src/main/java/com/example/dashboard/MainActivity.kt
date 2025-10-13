@@ -509,6 +509,7 @@ fun TextFieldContents(
                     name = it
                     onread1(true)
                 },
+                maxLines = 1,
                 label = { Text("Name", color = toggleColor) },
                 placeholder = { Text("Enter your name") },
                 shape = RoundedCornerShape(12.dp),
@@ -529,6 +530,7 @@ fun TextFieldContents(
                     email = it
                     onread2(true)
                 },
+                maxLines = 1,
                 label = { Text("Email", color = toggleColor) },
                 placeholder = { Text("Enter your email") },
                 shape = RoundedCornerShape(12.dp),
