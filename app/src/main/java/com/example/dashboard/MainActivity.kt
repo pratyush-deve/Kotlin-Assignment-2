@@ -149,7 +149,7 @@ fun DashboardContent() {
     val textColor = if (isDarkTheme) Color(color = 0xFF020202) else Color(color = 0xFFFFFFFF)
     val toggleColor = if (isDarkTheme) Color(color = 0xFF071D6B) else Color(color = 0xFF21DAF3)//For all Cyan colors
     val oppositeColor = if (isDarkTheme) Color.White else Color.Black//used in places where opp of textcolor needed
-    var colorsubmit by remember { mutableStateOf(oppositeColor) }
+    var colorsubmit by remember(oppositeColor) { mutableStateOf(oppositeColor) }
 
     Scaffold(
         modifier = Modifier
@@ -191,7 +191,7 @@ fun DashboardContent() {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp),
+                            .padding(horizontal = 8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ){
@@ -222,6 +222,47 @@ fun DashboardContent() {
                             modifier = Modifier
                                 .size(25.dp)
                                 .clip(CircleShape)
+                                .clickable(onClick = {
+                                    Toast.makeText(context, "Opening Youtube",Toast.LENGTH_SHORT).show()
+
+                                })
+                        )
+                    }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ){
+                        Text(
+                            text="Instagram",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.White,
+                            modifier = Modifier
+                                .clickable(onClick = {
+                                    Toast.makeText(context, "Opening Instagram",Toast.LENGTH_SHORT).show()
+
+                                })
+                        )
+                        Text(
+                            text="Facebook",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.White,
+                            modifier = Modifier
+                                .clickable(onClick = {
+                                    Toast.makeText(context, "Opening Facebook",Toast.LENGTH_SHORT).show()
+
+                                })
+                        )
+                        Text(
+                            text="Youtube",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.White,
+                            modifier = Modifier
                                 .clickable(onClick = {
                                     Toast.makeText(context, "Opening Youtube",Toast.LENGTH_SHORT).show()
 
@@ -261,7 +302,7 @@ fun DashboardContent() {
                                 Color.Magenta
                             )
                         ),
-                        shape = RoundedCornerShape(20.dp)
+                        shape = RoundedCornerShape(8.dp)
                     ),
                 colors = CardDefaults.cardColors(
                     containerColor = cardColor
@@ -357,7 +398,8 @@ fun DashboardContent() {
                 Text(
                     text = "Submit",
                     fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = textColor
                 )
             }
         }
@@ -430,6 +472,17 @@ fun TextFieldContents(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
+            .border(
+                width = 5.dp,
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        Color.Cyan,
+                        Color.Blue,
+                        Color.Magenta
+                    )
+                ),
+                shape = RoundedCornerShape(20.dp)
+            )
             .clickable(
                 indication = null,
                 interactionSource = remember { MutableInteractionSource() },
@@ -437,6 +490,7 @@ fun TextFieldContents(
                 focusManager.clearFocus()
                 keyboardController?.hide()
               },
+
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = cardColor
@@ -520,6 +574,17 @@ fun Gender(
         modifier = Modifier
             .fillMaxWidth()
             .padding(all = 20.dp)
+            .border(
+                width = 5.dp,
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        Color.Cyan,
+                        Color.Blue,
+                        Color.Magenta
+                    )
+                ),
+                shape = RoundedCornerShape(20.dp)
+            )
             .clickable(onClick = { expand = true}),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
@@ -718,8 +783,20 @@ fun Notifications(
     ){
         Column(
             modifier = Modifier
+                .border(
+                    width = 5.dp,
+                    brush = Brush.linearGradient(
+                        colors = listOf(
+                            Color.Cyan,
+                            Color.Blue,
+                            Color.Magenta
+                        )
+                    ),
+                    shape = RoundedCornerShape(20.dp)
+                )
                 .padding(8.dp)
                 .fillMaxWidth()
+
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -730,7 +807,9 @@ fun Notifications(
                     text = "Notifications",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = textColor
+                    color = textColor,
+                    modifier = Modifier
+                        .padding(start = 4.dp)
                 )
                 Switch(
                     checked = notifications,
@@ -833,6 +912,17 @@ fun Settings(
         modifier = Modifier
             .fillMaxWidth()
             .padding(all = 20.dp)
+            .border(
+                width = 5.dp,
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        Color.Cyan,
+                        Color.Blue,
+                        Color.Magenta
+                    )
+                ),
+                shape = RoundedCornerShape(20.dp)
+            )
             .clickable(onClick = {expand=true}),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
@@ -989,7 +1079,18 @@ fun Contents(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(all = 20.dp),
+            .padding(all = 20.dp)
+            .border(
+                width = 5.dp,
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        Color.Cyan,
+                        Color.Blue,
+                        Color.Magenta
+                    )
+                ),
+                shape = RoundedCornerShape(20.dp)
+            ),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = cardColor
@@ -999,6 +1100,17 @@ fun Contents(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .border(
+                    width = 5.dp,
+                    brush = Brush.linearGradient(
+                        colors = listOf(
+                            Color.Cyan,
+                            Color.Blue,
+                            Color.Magenta
+                        )
+                    ),
+                    shape = RoundedCornerShape(20.dp)
+                )
                 .padding(16.dp)
         ) {
             Text(
@@ -1008,10 +1120,6 @@ fun Contents(
                 color = textColor,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .border(
-                        border = BorderStroke(1.dp, textColor),
-                        shape = RoundedCornerShape(4.dp),
-                    )
                     .padding(16.dp),
             )
         }
@@ -1019,6 +1127,7 @@ fun Contents(
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(max = 200.dp)
+
         ) {
             item() {
                 Card(
@@ -1026,8 +1135,15 @@ fun Contents(
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)
                         .border(
-                            width = 1.dp,
-                            color = textColor,
+                            width = 2.dp,
+                            brush = Brush.linearGradient(
+                                colors = listOf(
+                                    Color.Cyan,
+                                    Color.Blue,
+                                    Color.Magenta
+                                )
+                            ),
+                            shape = RoundedCornerShape(20.dp)
                         ),
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
@@ -1059,8 +1175,15 @@ fun Contents(
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)
                         .border(
-                            width = 1.dp,
-                            color = textColor,
+                            width = 2.dp,
+                            brush = Brush.linearGradient(
+                                colors = listOf(
+                                    Color.Cyan,
+                                    Color.Blue,
+                                    Color.Magenta
+                                )
+                            ),
+                            shape = RoundedCornerShape(20.dp)
                         ),
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
@@ -1092,8 +1215,15 @@ fun Contents(
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)
                         .border(
-                            width = 1.dp,
-                            color = textColor,
+                            width = 2.dp,
+                            brush = Brush.linearGradient(
+                                colors = listOf(
+                                    Color.Cyan,
+                                    Color.Blue,
+                                    Color.Magenta
+                                )
+                            ),
+                            shape = RoundedCornerShape(20.dp)
                         ),
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
@@ -1125,8 +1255,15 @@ fun Contents(
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)
                         .border(
-                            width = 1.dp,
-                            color = textColor,
+                            width = 2.dp,
+                            brush = Brush.linearGradient(
+                                colors = listOf(
+                                    Color.Cyan,
+                                    Color.Blue,
+                                    Color.Magenta
+                                )
+                            ),
+                            shape = RoundedCornerShape(20.dp)
                         ),
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
@@ -1158,8 +1295,15 @@ fun Contents(
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)
                         .border(
-                            width = 1.dp,
-                            color = textColor,
+                            width = 2.dp,
+                            brush = Brush.linearGradient(
+                                colors = listOf(
+                                    Color.Cyan,
+                                    Color.Blue,
+                                    Color.Magenta
+                                )
+                            ),
+                            shape = RoundedCornerShape(20.dp)
                         ),
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
