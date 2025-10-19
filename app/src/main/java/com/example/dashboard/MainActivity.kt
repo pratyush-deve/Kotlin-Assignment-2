@@ -111,6 +111,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.lang.Integer.expand
@@ -124,32 +127,45 @@ class MainActivity : ComponentActivity() {
             navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.BLACK)
         )
         setContent {
-            DashboardContent()
+            MovieApp()
         }
     }
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DashboardContent() {
+fun DashboardContent(
+    navController: NavController,
+    viewModel: UserViewModel
+) {
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
     var context = LocalContext.current
     var scroll = rememberScrollState(0)
     var termsAccepted by remember { mutableStateOf(false) }
-    var gengerselected by remember { mutableStateOf(false) }
+    var gengerSelected by remember { mutableStateOf(false) }
     var nameselected by remember { mutableStateOf(false) }
     var emailselected by remember { mutableStateOf(false) }
     var toastcounter by remember { mutableStateOf(0) }
     var showDialog by remember { mutableStateOf(false) }
-    var submissionComplete by remember { mutableStateOf(false) }
+    val submissionComplete by viewModel.submissionComplete
+
     //themes color
-    var isDarkTheme by remember { mutableStateOf(true) }
+    var isDarkTheme by viewModel.isDarkTheme
+    LaunchedEffect(isDarkTheme) {
+        // Update Submit button color automatically when theme changes
+        viewModel.colorSubmit.value = if (isDarkTheme) Color.White else Color.Black
+    }
     val backgroundColor = if (isDarkTheme) Color(0xFF232121) else Color(0xFFFFFFFF)
     val cardColor = if (isDarkTheme) Color(0xFFF1F0F0) else Color(0xFF000000)
     val textColor = if (isDarkTheme) Color(color = 0xFF020202) else Color(color = 0xFFFFFFFF)
     val toggleColor = if (isDarkTheme) Color(color = 0xFF071D6B) else Color(color = 0xFF21DAF3)//For all Cyan colors
     val oppositeColor = if (isDarkTheme) Color.White else Color.Black//used in places where opp of textcolor needed
-    var colorsubmit by remember(oppositeColor) { mutableStateOf(oppositeColor) }
+    val colorsubmit by viewModel.colorSubmit
+
+    //submit button booleans
+    val isNameFilled = viewModel.name.value.isNotEmpty()
+    val isEmailFilled = viewModel.email.value.isNotEmpty()
+    val isGenderSelected = viewModel.gender.value.isNotEmpty()
 
     Scaffold(
         modifier = Modifier
@@ -323,15 +339,17 @@ fun DashboardContent() {
                 },
                 toggleColor = toggleColor,
                 textColor = textColor,
-                cardColor = cardColor
+                cardColor = cardColor,
+                viewModel = viewModel,
             )
             Spacer(modifier = Modifier.height(4.dp))
             Gender(
+                viewModel = viewModel,
                 cardColor = cardColor,
                 textColor = textColor,
                 toggleColor=toggleColor,
                 onread = { accepted ->
-                    gengerselected = accepted
+                    gengerSelected = accepted
                 }
             )
             Spacer(modifier = Modifier.height(4.dp))
@@ -365,29 +383,26 @@ fun DashboardContent() {
             Spacer(modifier = Modifier.height(4.dp))
             Button(
                 onClick = {
-                    if(termsAccepted and gengerselected and nameselected and emailselected and termsAccepted and !submissionComplete){
-                        showDialog=true
-                    }
-                    else if(!nameselected){
-                        colorsubmit = oppositeColor
+                    val isNameFilled = viewModel.name.value.isNotEmpty()
+                    val isEmailFilled = viewModel.email.value.isNotEmpty()
+                    val isGenderSelected = viewModel.gender.value.isNotEmpty()
+
+                    if (termsAccepted && isNameFilled && isEmailFilled && isGenderSelected && !submissionComplete) {
+                        showDialog = true
+                    } else if (!isNameFilled) {
                         Toast.makeText(context, "You cannot leave Name empty", Toast.LENGTH_SHORT).show()
-                    }
-                    else if(!emailselected){
-                        colorsubmit = oppositeColor
+                    } else if (!isEmailFilled) {
                         Toast.makeText(context, "You cannot leave Email empty", Toast.LENGTH_SHORT).show()
-                    }
-                    else if(!gengerselected){
-                        colorsubmit = oppositeColor
+                    } else if (!isGenderSelected) {
                         Toast.makeText(context, "Please select a gender", Toast.LENGTH_SHORT).show()
-                    }
-                    else if(!termsAccepted){
-                        colorsubmit = oppositeColor
+                    } else if (!termsAccepted) {
                         Toast.makeText(context, "Please accept the terms and conditions", Toast.LENGTH_SHORT).show()
                     }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 40.dp)
+                    .padding(bottom = 8.dp)
                     .height(55.dp),
                 shape = RoundedCornerShape(50),
                 colors = ButtonDefaults.buttonColors(
@@ -402,6 +417,7 @@ fun DashboardContent() {
                     color = textColor
                 )
             }
+            Spacer(modifier = Modifier.height(4.dp))
         }
         if (showDialog) {
             AlertDialog(
@@ -416,8 +432,9 @@ fun DashboardContent() {
                 confirmButton = {
                     TextButton(onClick = {
                         showDialog = false
-                        colorsubmit=Color.Green
-                        submissionComplete = true
+                        viewModel.colorSubmit.value = Color.Green
+                        viewModel.submissionComplete.value = true
+                        navController.navigate("MovieList")
                     }) {
                         Text("OK", color = Color.Cyan)
                     }
@@ -461,10 +478,9 @@ fun TextFieldContents(
     modifier: Modifier = Modifier,
     toggleColor: Color,
     textColor: Color,
-    cardColor: Color
+    cardColor: Color,
+    viewModel: UserViewModel,
 ) {
-    var name by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -504,10 +520,10 @@ fun TextFieldContents(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             OutlinedTextField(
-                value = name,
+                value = viewModel.name.value,
                 onValueChange = {
-                    name = it
-                    onread1(true)
+                    viewModel.name.value = it
+                    onread1(it.isNotEmpty())
                 },
                 maxLines = 1,
                 label = { Text("Name", color = toggleColor) },
@@ -525,10 +541,10 @@ fun TextFieldContents(
             )
 
             OutlinedTextField(
-                value = email,
+                value = viewModel.email.value,
                 onValueChange = {
-                    email = it
-                    onread2(true)
+                    viewModel.email.value = it
+                    onread2(it.isNotEmpty())
                 },
                 maxLines = 1,
                 label = { Text("Email", color = toggleColor) },
@@ -546,25 +562,16 @@ fun TextFieldContents(
             )
         }
     }
-    if(name.isEmpty()){
-        onread1(false)
-    }
-    else if(email.isEmpty()){
-        onread2(false)
-    }
-    else{
-        onread1(true)
-        onread2(true)
-    }
 }
 @Composable
 fun Gender(
+    viewModel: UserViewModel,
     onread: (Boolean)->Unit,
     cardColor: Color,
     textColor: Color,
     toggleColor: Color
 ) {
-    var selectedGender by remember { mutableStateOf<String?>(null) }
+    var selectedGender by remember { mutableStateOf(viewModel.gender.value.ifEmpty { null }) }
     var otherGender by remember { mutableStateOf("") }
     var expand by remember { mutableStateOf(false) }
     val rotation by animateFloatAsState(if (expand) 180f else 0f, label = "")
@@ -634,6 +641,7 @@ fun Gender(
                             selected = selectedGender == "Male",
                             onClick = {
                                 selectedGender = "Male"
+                                viewModel.gender.value = "Male"
                                 onread(true)
                                 scope.launch { // 👈 launch coroutine for delay
                                     delay(1000)
@@ -661,6 +669,7 @@ fun Gender(
                             selected = selectedGender == "Female",
                             onClick = {
                                 selectedGender = "Female"
+                                viewModel.gender.value = "Female"
                                 onread(true)
                                 scope.launch { // 👈 launch coroutine for delay
                                     delay(1000)
@@ -715,6 +724,7 @@ fun Gender(
                             modifier = Modifier
                                 .clickable(onClick = {
                                     if(otherTextInput){
+                                        viewModel.gender.value = otherGender
                                         checkColor = Color.Green
                                         scope.launch {
                                             delay(1000)
