@@ -53,6 +53,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import java.nio.file.WatchEvent
+import kotlin.collections.sumOf
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,11 +69,8 @@ fun Checkout(
     val textColor = if (isDarkTheme) Color.White else Color.Black
     val opptextColor = if (isDarkTheme) Color.Black else Color.White
     val oppbackgroundColor = if (isDarkTheme) Color.White else Color.Black
-    DisposableEffect(Unit) {//Resets seats list
-        onDispose {
-            viewModel.resetSeatSelection()
-        }
-    }
+    val selectedSeats = viewModel.selectedSeats.value
+
 
     Scaffold(
         topBar = {
@@ -81,7 +80,6 @@ fun Checkout(
                     IconButton(
                         onClick = {
                             navController.popBackStack()
-                            viewModel.resetSeatSelection()
                         },
                         colors = IconButtonDefaults.iconButtonColors(contentColor = Color.White)
                     ) {
@@ -136,6 +134,110 @@ fun Checkout(
                     fontWeight = FontWeight.Bold,
                 )
             }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        color = backgroundColor
+                    )
+            ){
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ){
+                    Text(
+                        text = "Selected Seats",
+                        color = textColor,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(
+                        text = "Price",
+                        color = textColor,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
+                if (selectedSeats.isEmpty()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "No seats selected",
+                            color = textColor,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                } else {
+                    selectedSeats.forEach { (row, col) ->
+                        val price = when (row) {
+                            0 -> 500
+                            1, 2 -> 350
+                            else -> 200
+                        }
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            Text(
+                                text = "R${row + 1}S${col + 1}",
+                                color = textColor
+                            )
+                            Text(
+                                text = "₹$price",
+                                color = textColor
+                            )
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+                val total = selectedSeats.fold(0) { acc, (row, _) ->
+                    acc + when (row) {
+                        0 -> 500
+                        1, 2 -> 350
+                        else -> 200
+                    }
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Text(
+                        text = "Total",
+                        color = textColor,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "₹$total",
+                        color = textColor,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Button(
+                onClick = {
+                    Toast.makeText(context, "Booking Confirmed!", Toast.LENGTH_SHORT).show()
+                    viewModel.resetSeatSelection()
+                    navController.navigate("MovieList"){
+                        popUpTo("Dashboard"){inclusive=false}
+                        launchSingleTop = true
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEC407A))
+            ) {
+                Text(text = "Confirm Booking", color = Color.White)
+            }
+
         }
     }
 }

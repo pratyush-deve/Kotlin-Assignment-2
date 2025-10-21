@@ -6,6 +6,7 @@ import android.R.attr.navigationIcon
 import android.content.ClipData
 import android.icu.util.Currency.isAvailable
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -67,10 +68,11 @@ fun SeatSelection(
     val textColor = if (isDarkTheme) Color.White else Color.Black
     val opptextColor = if (isDarkTheme) Color.Black else Color.White
     val oppbackgroundColor = if (isDarkTheme) Color.White else Color.Black
-    DisposableEffect(Unit) {//Resets seats list
-        onDispose {
-            viewModel.resetSeatSelection()
-        }
+
+    BackHandler {
+        // Triggered for both back button AND swipe gestures
+        viewModel.resetSeatSelection()
+        navController.popBackStack()
     }
 
     Scaffold(
@@ -209,11 +211,6 @@ fun SeatBox(
                                     .clickable(
                                         onClick = {
                                             viewModel.toggleSeat(rowIndex, seatIndex)
-                                            Toast
-                                                .makeText(
-                                                    context,
-                                                    "Seat R${rowIndex + 1}S${seatIndex + 1} Selected",
-                                                    Toast.LENGTH_SHORT).show()
                                         }
                                     )
                             )

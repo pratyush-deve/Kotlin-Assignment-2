@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -197,6 +198,17 @@ fun MovieRow(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
+            .border(
+                width = 3.dp,
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        Color.Cyan,
+                        Color.Blue,
+                        Color.Magenta
+                    )
+                ),
+                shape = RoundedCornerShape(8.dp)
+            )
             .clickable {
                 navController.navigate(
                     "MovieDetailScreen/${title}/${genre}/${rating}/${imageRes}"
