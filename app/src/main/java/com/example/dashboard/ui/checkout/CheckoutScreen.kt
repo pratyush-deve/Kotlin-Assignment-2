@@ -160,6 +160,8 @@ fun Checkout(
                     }
                 }
                 Spacer(modifier = Modifier.height(10.dp))
+                //total += price of that seat
+                //acc = price added, accumulated upto that point
                 val total = selectedSeats.fold(0) { acc, (row, _) ->
                     acc + when (row) {
                         0 -> 500
