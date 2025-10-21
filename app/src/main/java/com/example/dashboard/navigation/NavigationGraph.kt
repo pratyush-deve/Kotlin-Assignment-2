@@ -1,13 +1,18 @@
-package com.example.dashboard
+package com.example.dashboard.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.dashboard.DashboardContent
+import com.example.dashboard.ui.checkout.Checkout
+import com.example.dashboard.ui.moviedetail.MovieDetailScreen
+import com.example.dashboard.ui.movielist.MovieListScreen
+import com.example.dashboard.ui.seatselection.SeatSelection
+import com.example.dashboard.viewmodel.UserViewModel
 
 @Composable
 fun MovieApp(){

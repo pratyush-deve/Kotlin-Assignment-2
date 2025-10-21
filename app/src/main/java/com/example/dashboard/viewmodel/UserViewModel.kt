@@ -1,4 +1,4 @@
-package com.example.dashboard
+package com.example.dashboard.viewmodel
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
@@ -14,10 +14,10 @@ class UserViewModel : ViewModel() {
 
     //Re-Submit button booleans
     var submissionComplete = mutableStateOf(false)
-    var colorSubmit = mutableStateOf(Color.Black)
+    var colorSubmit = mutableStateOf(Color.Companion.Black)
     fun resetSubmissionState() {
         submissionComplete.value = false
-        colorSubmit.value = if (isDarkTheme.value) Color.White else Color.Black
+        colorSubmit.value = if (isDarkTheme.value) Color.Companion.White else Color.Companion.Black
     }
 
     //Seat Selection data

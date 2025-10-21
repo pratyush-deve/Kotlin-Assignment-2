@@ -1,16 +1,10 @@
-package com.example.dashboard
+package com.example.dashboard.ui.moviedetail
 
-import android.R.attr.icon
-import com.example.dashboard.R
-import android.R.attr.navigationIcon
-import android.content.ClipData
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
@@ -34,21 +28,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.colorspace.WhitePoint
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.dashboard.viewmodel.UserViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,9 +52,9 @@ fun MovieDetailScreen(
     val context = LocalContext.current
     val isDarkTheme by viewModel.isDarkTheme
     val backgroundColor = if (isDarkTheme) Color(0xFF232121) else Color(0xFFFFFFFF)
-    val textColor = if (isDarkTheme) Color.White else Color.Black
-    val opptextColor = if (isDarkTheme) Color.Black else Color.White
-    val oppbackgroundColor = if (isDarkTheme) Color.White else Color.Black
+    val textColor = if (isDarkTheme) White else Color.Black
+    val opptextColor = if (isDarkTheme) Color.Black else White
+    val oppbackgroundColor = if (isDarkTheme) White else Color.Black
     var showCinemaList by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -73,13 +62,13 @@ fun MovieDetailScreen(
             TopAppBar(
                 title = { Text(
                     "Movie Details",
-                    color = Color.White
+                    color = White
                 ) },
                 navigationIcon = {
                     IconButton(
                         onClick = { navController.popBackStack() },
                         colors = IconButtonDefaults.iconButtonColors(
-                            contentColor = Color.White
+                            contentColor = White
                         )
                     ) {
                         Icon(
@@ -98,7 +87,7 @@ fun MovieDetailScreen(
         bottomBar = {
             BottomAppBar(
                 containerColor = Color.Black,
-                contentColor = Color.White,
+                contentColor = White,
                 actions = {
                     IconButton(onClick = {
                         navController.navigate("Dashboard"){
@@ -109,7 +98,7 @@ fun MovieDetailScreen(
                         Icon(
                             imageVector = Icons.Default.Home,
                             contentDescription = "Home",
-                            tint = Color.White
+                            tint = White
                         )
                     }
                 }
@@ -295,13 +284,13 @@ fun MovieDetailScreen(
             ){
                 Text(
                     text = "Book Movie",
-                    color = Color.White
+                    color = White
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Icon(
                     imageVector = Icons.Default.PlayArrow,
                     contentDescription = "Arrow Right",
-                    tint = Color.White,
+                    tint = White,
                     modifier = Modifier.size(24.dp)
                 )
             }
@@ -351,7 +340,7 @@ fun MovieDetailScreen(
                                 ) {
                                     Text(
                                         text = cinema,
-                                        color = Color.White
+                                        color = White
                                     )
                                 }
                             }
